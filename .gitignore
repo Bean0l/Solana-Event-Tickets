@@ -1,0 +1,6 @@
+.env
+organizer.json
+node_modules/
+.claude/
+*.db
+.DS_Store
