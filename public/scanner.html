@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scan event tickets</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="scanner-page">
+  <header class="site-header">
+    <a class="brand" href="attendee.html"><span class="brand-mark" aria-hidden="true">S</span>Solana Tickets</a>
+    <nav aria-label="Main navigation"><a href="attendee.html">Attendee</a><a href="scanner.html" aria-current="page">Scanner</a></nav>
+  </header>
+  <main>
+    <p class="eyebrow">Event operations / Check-in</p>
+    <h1>A smooth start at the door.</h1>
+    <p class="subtitle">Scan a ticket, verify its status, and welcome your next attendee.</p>
+    <p class="demo">Demo mode: results are simulated. This page does not check Solana or share records with the attendee page. Check-ins reset on refresh.</p>
+    <div class="scanner-layout">
+      <section class="panel" aria-labelledby="scan-heading">
+        <h2 id="scan-heading">Scan a ticket</h2>
+        <p class="helper">Choose an event, then open your camera.</p>
+        <div class="settings-row">
+          <div><label for="event-id">Event ID</label><input id="event-id" type="number" min="1" step="1" value="1" required></div>
+          <div><label for="demo-status">Demo result</label>
+            <select id="demo-status">
+              <option value="valid">Valid ticket (green)</option>
+              <option value="used">Already used (yellow)</option>
+              <option value="none">No ticket (red)</option>
+            </select>
+          </div>
+        </div>
+        <div class="camera-stage">
+          <div class="scan-symbol" aria-hidden="true">+</div>
+          <p>Point. Scan. Welcome.</p>
+          <small>Position the attendee's QR code inside the camera frame.</small>
+          <div id="reader"></div>
+        </div>
+        <div class="camera-actions">
+          <button id="start-camera" type="button">Start camera</button>
+          <button id="stop-camera" class="secondary" type="button" disabled>Stop camera</button>
+        </div>
+        <div class="status-key" aria-label="Ticket status colors"><span class="valid">Valid</span><span class="used">Already used</span><span class="none">No ticket</span></div>
+      </section>
+      <section class="panel" aria-labelledby="manual-heading">
+        <p class="eyebrow">Manual verification</p>
+        <h2 id="manual-heading">Have a wallet address?</h2>
+        <p class="helper">Paste the wallet address or ticket QR text below. No camera needed.</p>
+        <form id="verify-form">
+          <label for="qr-text">Wallet address or QR code text</label>
+          <textarea id="qr-text" required spellcheck="false" autocapitalize="none" aria-describedby="qr-help" placeholder="Paste a public wallet address or the ticket JSON"></textarea>
+          <small id="qr-help">The ticket must match the event ID selected on this page.</small>
+          <button id="verify" type="submit">Verify demo ticket</button>
+        </form>
+        <p id="message" role="status" aria-live="polite"></p>
+        <section id="result" aria-live="polite" hidden>
+          <h2 id="result-title"></h2>
+          <p id="result-details"></p>
+          <button id="checkin" type="button" hidden>Check in demo ticket</button>
+        </section>
+      </section>
+    </div>
+    <p class="footer-note">Camera access requires localhost or HTTPS. Manual verification is always available.</p>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    // FAKE DATA: replace these functions with server fetch calls when routes are ready.
+    const demoCheckins = new Set();
+    async function verifyTicket(eventId, wallet) {
+      if (demoCheckins.has(`${eventId}:${wallet}`)) return 'used';
+      return document.getElementById('demo-status').value;
+    }
+    async function checkInTicket(eventId, wallet) {
+      if (await verifyTicket(eventId, wallet) !== 'valid') {
+        throw new Error('This demo ticket is no longer valid. Verify it again.');
+      }
+      demoCheckins.add(`${eventId}:${wallet}`);
+      return 'used';
+    }
+    // END FAKE DATA.
+
+    const byId = id => document.getElementById(id);
+    let verifiedTicket = null;
+    let busy = false;
+    let scanner = null;
+    let cameraRunning = false;
+    let cameraTransition = false;
+    let scanLocked = false;
+
+    function validWallet(address) {
+      const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) return false;
+      let value = 0n;
+      for (const character of address) value = value * 58n + BigInt(alphabet.indexOf(character));
+      let bytes = 0;
+      while (value > 0n) { bytes++; value >>= 8n; }
+      return bytes + address.match(/^1*/)[0].length === 32;
+    }
+
+    function resetResult() {
+      verifiedTicket = null;
+      byId('result').hidden = true;
+      byId('checkin').hidden = true;
+      byId('message').textContent = '';
+    }
+
+    function showError(error) {
+      byId('message').className = 'error';
+      byId('message').textContent = error.message || 'Something went wrong. Please try again.';
+    }
+
+    function readTicket(text) {
+      const eventId = Number(byId('event-id').value);
+      if (!Number.isSafeInteger(eventId) || eventId < 1) throw new Error('Enter a positive whole event ID.');
+      let wallet = text.trim();
+      if (wallet.startsWith('{')) {
+        let data;
+        try { data = JSON.parse(wallet); }
+        catch { throw new Error('The QR code contains invalid JSON. Scan a ticket from the attendee page.'); }
+        if (data.event !== eventId) throw new Error('This QR code is for a different event.');
+        wallet = data.wallet;
+      }
+      if (typeof wallet !== 'string' || !validWallet(wallet)) throw new Error('Enter or scan a valid public Solana wallet address.');
+      return { eventId, wallet };
+    }
+
+    function showResult(status, ticket, checkedIn = false) {
+      const titles = { valid: 'Valid demo ticket', used: 'Demo ticket already used', none: 'No demo ticket' };
+      if (!Object.hasOwn(titles, status)) throw new Error('The ticket response was not recognized.');
+      byId('result').className = status;
+      byId('result-title').textContent = checkedIn ? 'Demo check-in complete' : titles[status];
+      byId('result-details').textContent = `Event ${ticket.eventId} | Wallet: ${ticket.wallet}`;
+      byId('result').hidden = false;
+      byId('checkin').hidden = status !== 'valid';
+      verifiedTicket = status === 'valid' ? ticket : null;
+    }
+
+    function setBusy(value) {
+      busy = value;
+      for (const id of ['verify', 'checkin', 'event-id', 'demo-status', 'qr-text']) byId(id).disabled = value;
+    }
+
+    async function verifyText(text) {
+      if (busy) return;
+      resetResult();
+      setBusy(true);
+      try {
+        const ticket = readTicket(text);
+        showResult(await verifyTicket(ticket.eventId, ticket.wallet), ticket);
+      } catch (error) { showError(error); }
+      finally { setBusy(false); }
+    }
+
+    byId('verify-form').addEventListener('submit', event => {
+      event.preventDefault();
+      verifyText(byId('qr-text').value);
+    });
+    for (const id of ['event-id', 'demo-status', 'qr-text']) byId(id).addEventListener('input', resetResult);
+
+    byId('checkin').addEventListener('click', async () => {
+      if (busy || !verifiedTicket) return;
+      const ticket = verifiedTicket;
+      setBusy(true);
+      try {
+        const status = await checkInTicket(ticket.eventId, ticket.wallet);
+        showResult(status, ticket, true);
+      } catch (error) {
+        resetResult();
+        showError(error);
+      } finally { setBusy(false); }
+    });
+
+    async function stopCamera() {
+      if (!cameraRunning || cameraTransition) return;
+      cameraTransition = true;
+      byId('stop-camera').disabled = true;
+      try {
+        await scanner.stop();
+        cameraRunning = false;
+        byId('start-camera').disabled = false;
+      } finally {
+        cameraTransition = false;
+        byId('stop-camera').disabled = !cameraRunning;
+      }
+    }
+
+    byId('start-camera').addEventListener('click', async () => {
+      if (cameraRunning || cameraTransition) return;
+      if (typeof Html5Qrcode === 'undefined') {
+        showError(new Error('The camera library could not load. Check your internet connection, or paste a wallet below.'));
+        return;
+      }
+      if (!window.isSecureContext) {
+        showError(new Error('Camera scanning needs HTTPS or localhost. You can still paste a wallet below.'));
+        return;
+      }
+      cameraTransition = true;
+      scanLocked = false;
+      byId('start-camera').disabled = true;
+      byId('message').textContent = 'Allow camera access when your browser asks.';
+      try {
+        scanner = scanner || new Html5Qrcode('reader');
+        await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 240, height: 240 } }, async text => {
+          if (scanLocked || busy || cameraTransition) return;
+          scanLocked = true;
+          try {
+            await stopCamera();
+            byId('qr-text').value = text;
+            await verifyText(text);
+          } catch {
+            showError(new Error('Could not stop the camera. Use Stop camera and try again.'));
+            scanLocked = false;
+          }
+        }, () => {});
+        cameraRunning = true;
+        byId('message').textContent = 'Point the camera at an attendee ticket QR code.';
+      } catch {
+        showError(new Error('Could not open the camera. Check camera permission and availability, or paste a wallet below.'));
+      } finally {
+        cameraTransition = false;
+        byId('start-camera').disabled = cameraRunning;
+        byId('stop-camera').disabled = !cameraRunning;
+      }
+    });
+    byId('stop-camera').addEventListener('click', async () => {
+      try {
+        await stopCamera();
+        byId('message').textContent = 'Camera stopped.';
+      } catch { showError(new Error('Could not stop the camera. Close this tab to release it.')); }
+    });
+  </script>
+</body>
+</html>
