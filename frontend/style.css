@@ -1,17 +1,18 @@
 ﻿/* ==========================================================================
    style.css
-   Shared by attendee.html and scanner.html.
+   Shared by organizer.html, attendee.html, and scanner.html.
 
    Sections:
      1. Theme variables and page base
      2. Header and navigation
      3. Text and headings
-     4. Panels and notices
+     4. Panels
      5. Form controls and buttons
      6. Message box
      7. Attendee page
-     8. Scanner page
-     9. Responsive rules (phones and small screens)
+     8. Organizer page
+     9. Scanner page
+     10. Responsive rules
    ========================================================================== */
 
 
@@ -31,7 +32,10 @@
     --accent: #f15b68;   /* brand color for buttons and highlights */
 }
 
-/* Padding and borders count inside an element's width and height. */
+/*
+   Padding and borders count inside an element's width
+   and height.
+*/
 * {
     box-sizing: border-box;
 }
@@ -51,7 +55,10 @@ a {
     text-decoration: none;
 }
 
-/* Anything with the hidden attribute stays hidden, even if another rule sets display. */
+/*
+   Anything with the hidden attribute stays hidden, even
+   if another rule sets display.
+*/
 [hidden] {
     display: none !important;
 }
@@ -78,7 +85,6 @@ a {
     letter-spacing: -.5px;
 }
 
-/* The small square logo with the letter S. */
 .brand-mark {
     display: inline-grid;
     place-items: center;
@@ -102,15 +108,13 @@ nav a {
     border-radius: 8px;
 }
 
-/* The link for the page you are currently on. */
 nav a[aria-current] {
     color: white;
     background: #ffffff0d;
 }
 
-/* Main content area under the header. */
 main {
-    max-width: 1024px;
+    max-width: 640px;
     margin: 54px auto;
     padding: 0 28px;
 }
@@ -120,7 +124,6 @@ main {
    3. Text and headings
    ========================================================================== */
 
-/* Small uppercase label above a heading. */
 .eyebrow {
     color: var(--accent);
     font-size: 12px;
@@ -148,7 +151,6 @@ p {
     margin: 0 0 16px;
 }
 
-/* Gray secondary text. */
 .subtitle,
 small,
 .helper {
@@ -167,26 +169,14 @@ small,
 
 
 /* ==========================================================================
-   4. Panels and notices
+   4. Panels
    ========================================================================== */
 
-/* Rounded card that holds a form or result. */
 .panel {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 20px;
     padding: 28px;
-}
-
-/* Yellow notice that says the page is using demo data. */
-.demo {
-    margin: 24px 0;
-    border: 1px solid #725329;
-    border-radius: 10px;
-    padding: 12px 16px;
-    background: #2a2117;
-    color: #eed3a5;
-    font-size: 13px;
 }
 
 
@@ -201,7 +191,6 @@ label {
     margin: 18px 0 8px;
 }
 
-/* All controls fill the width of their container. */
 input,
 textarea,
 select,
@@ -211,7 +200,6 @@ button {
     border-radius: 10px;
 }
 
-/* Text entry controls (everything except buttons). */
 input,
 textarea,
 select {
@@ -232,14 +220,12 @@ textarea {
     overflow-wrap: anywhere;
 }
 
-/* Hint text under a field. */
 small {
     display: block;
     font-size: 12px;
     margin-top: 9px;
 }
 
-/* Main button: filled with the accent color. */
 button {
     margin-top: 20px;
     padding: 13px 18px;
@@ -260,7 +246,7 @@ button:disabled {
     cursor: default;
 }
 
-/* Second button style: outline only, for less important actions. */
+/* Outline-only button for less important actions. */
 button.secondary {
     background: transparent;
     border-color: #505563;
@@ -271,7 +257,10 @@ button.secondary:hover:not(:disabled) {
     background: #252832;
 }
 
-/* Visible outline when navigating with the keyboard. */
+/*
+   Visible outline when navigating with the keyboard, so
+   people can see which control is selected.
+*/
 :focus-visible {
     outline: 3px solid #ff97a2;
     outline-offset: 4px;
@@ -300,7 +289,7 @@ button.secondary:hover:not(:disabled) {
     border-radius: 10px;
 }
 
-/* Add the class "error" to the message box to turn the text red. */
+/* A script adds the class "error" to turn the text red. */
 #message.error {
     color: #ffacb5;
 }
@@ -308,49 +297,14 @@ button.secondary:hover:not(:disabled) {
 
 /* ==========================================================================
    7. Attendee page (attendee.html)
-   Left side: event introduction. Right side: wallet form and ticket.
    ========================================================================== */
 
-/* Two columns: event info on the left, form on the right. */
 .attendee-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 28px;
 }
 
-.event-intro {
-    padding-top: 20px;
-}
-
-/* Decorative banner at the top of the event introduction. */
-.event-art {
-    height: 170px;
-    border-radius: 18px;
-    border: 1px solid #60303e;
-    background:
-        repeating-linear-gradient(135deg, transparent 0 22px, #ff8f9e10 22px 23px),
-        linear-gradient(120deg, #542130, #1e1725);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 28px;
-    margin-bottom: 30px;
-}
-
-.event-art span {
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: #edbec7;
-}
-
-.event-art strong {
-    font-size: 42px;
-    line-height: 1;
-    letter-spacing: -2px;
-}
-
-/* Event date and capacity line, with a divider above and below. */
 #event-details {
     color: #e8bbc4;
     font-size: 14px;
@@ -363,7 +317,6 @@ button.secondary:hover:not(:disabled) {
     margin-top: 24px;
 }
 
-/* The issued ticket area, separated from the form by a dashed line. */
 #ticket {
     text-align: center;
     margin-top: 24px;
@@ -375,7 +328,10 @@ button.secondary:hover:not(:disabled) {
     color: #9be6bb;
 }
 
-/* QR code sits on a white square so scanners can read it. */
+/*
+   The QR code sits on a white square so scanners can
+   read it.
+*/
 #qr {
     width: fit-content;
     max-width: 100%;
@@ -392,7 +348,6 @@ button.secondary:hover:not(:disabled) {
     height: auto;
 }
 
-/* Wallet address in a monospace font, wrapping onto new lines if long. */
 .wallet {
     font: 12px/1.7 ui-monospace, monospace;
     color: var(--muted);
@@ -401,18 +356,81 @@ button.secondary:hover:not(:disabled) {
 
 
 /* ==========================================================================
-   8. Scanner page (scanner.html)
-   Left side: setup, camera, and manual entry. Right side: result.
+   8. Organizer page (organizer.html)
+   ========================================================================== */
+
+.organizer-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+.label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+    margin: 18px 0 4px;
+}
+
+.big-number {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.6px;
+    margin: 0 0 8px;
+}
+
+.link-buttons {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0 16px;
+}
+
+/*
+   Links styled like buttons, with the same colors as the
+   button elements above.
+*/
+a.button {
+    display: block;
+    padding: 13px 18px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #18080c;
+    font-weight: 750;
+    text-align: center;
+    transition: background .15s, border-color .15s;
+}
+
+a.button:hover {
+    background: #ff7e89;
+}
+
+a.button.secondary {
+    background: transparent;
+    border-color: #505563;
+    color: var(--text);
+}
+
+a.button.secondary:hover {
+    background: #252832;
+}
+
+small a {
+    text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   9. Scanner page (scanner.html)
    ========================================================================== */
 
 .scanner-layout {
     display: grid;
-    grid-template-columns: 1.15fr 1fr;
+    grid-template-columns: 1fr;
     gap: 24px;
-    align-items: start;
 }
 
-/* Row with the event ID field and the second field next to it. */
 .settings-row {
     display: grid;
     grid-template-columns: 90px 1fr;
@@ -420,7 +438,6 @@ button.secondary:hover:not(:disabled) {
     margin-bottom: 24px;
 }
 
-/* Dashed box that holds the camera view and its buttons. */
 .camera-stage {
     border: 1px dashed #505563;
     border-radius: 14px;
@@ -429,7 +446,6 @@ button.secondary:hover:not(:disabled) {
     text-align: center;
 }
 
-/* Square scan icon shown before the camera starts. */
 .scan-symbol {
     width: 64px;
     height: 64px;
@@ -448,7 +464,10 @@ button.secondary:hover:not(:disabled) {
     gap: 12px;
 }
 
-/* Container the QR scanner library fills with the live camera video. */
+/*
+   The QR scanner library fills this with the live camera
+   video.
+*/
 #reader {
     width: 100%;
     overflow: hidden;
@@ -463,7 +482,6 @@ button.secondary:hover:not(:disabled) {
     max-width: 100%;
 }
 
-/* Legend that explains the three result colors. */
 .status-key {
     display: flex;
     flex-wrap: wrap;
@@ -473,7 +491,10 @@ button.secondary:hover:not(:disabled) {
     color: #b8bdc9;
 }
 
-/* Colored dot before each legend item. The color comes from --dot below. */
+/*
+   The dot color comes from --dot, which is set for each
+   status below.
+*/
 .status-key span::before {
     content: '';
     display: inline-block;
@@ -496,7 +517,10 @@ button.secondary:hover:not(:disabled) {
     --dot: #ff8293;   /* red: no ticket */
 }
 
-/* Result box. The class on it (valid, used, or none) sets its color. */
+/*
+   The class on the result box (valid, used, or none)
+   sets its color.
+*/
 #result {
     margin-top: 24px;
     padding: 22px;
@@ -526,11 +550,10 @@ button.secondary:hover:not(:disabled) {
 
 
 /* ==========================================================================
-   9. Responsive rules
+   10. Responsive rules
    These only apply when the screen is narrow, such as on a phone.
    ========================================================================== */
 
-/* Tablets and phones: stack the two-column layouts into one column. */
 @media (max-width: 740px) {
     main {
         margin: 30px auto;
@@ -541,27 +564,15 @@ button.secondary:hover:not(:disabled) {
         padding: 18px;
     }
 
-    .attendee-layout,
-    .scanner-layout {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .event-intro {
-        padding-top: 0;
-    }
-
-    .event-art {
-        height: 130px;
-        margin-bottom: 24px;
-    }
-
     .panel {
         padding: 22px;
     }
 }
 
-/* Very small phones: stack the header and the paired fields and buttons. */
+/*
+   Very small phones: stack the header, and put paired
+   fields and buttons on separate lines.
+*/
 @media (max-width: 380px) {
     .site-header {
         align-items: flex-start;
@@ -575,7 +586,10 @@ button.secondary:hover:not(:disabled) {
     }
 }
 
-/* Turn off button animation for people who ask their system for less motion. */
+/*
+   Turn off button animation for people who ask their
+   system for less motion.
+*/
 @media (prefers-reduced-motion: reduce) {
     button {
         transition: none;
