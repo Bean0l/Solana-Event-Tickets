@@ -40,6 +40,12 @@ const selectEvent = db.prepare(`
     FROM events e
     WHERE e.id = ?
 `);
+const selectAllEvents = db.prepare(`
+    SELECT e.id, e.name, e.date, e.capacity, e.mint,
+           (SELECT COUNT(*) FROM tickets t WHERE t.event_id = e.id) AS ticketsIssued
+    FROM events e
+    ORDER BY e.id DESC
+`);
 const insertTicket = db.prepare(
     'INSERT INTO tickets (event_id, wallet, signature) VALUES (?, ?, ?)'
 );
@@ -58,6 +64,11 @@ function getEvent(id) {
     return selectEvent.get(id);
 }
 
+// Returns every event with its tickets issued, newest first. Empty if none.
+function listEvents() {
+    return selectAllEvents.all();
+}
+
 // True if this wallet already has a ticket recorded for this event.
 function hasTicket(eventId, wallet) {
     return selectTicket.get(eventId, wallet) !== undefined;
@@ -68,4 +79,4 @@ function addTicket(eventId, wallet, signature) {
     insertTicket.run(eventId, wallet, signature);
 }
 
-module.exports = { createEvent, getEvent, hasTicket, addTicket };
+module.exports = { createEvent, getEvent, listEvents, hasTicket, addTicket };
