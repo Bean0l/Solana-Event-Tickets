@@ -5,13 +5,13 @@
     The page event staff use at the door.
 
     Flow:
-    1. Staff scan an attendee's QR code, or paste it.
-    2. The page asks the server whether the ticket is
+    1. Staff choose their event from the list.
+    2. Staff scan an attendee's QR code, or paste it.
+    3. The page asks the server whether the ticket is
        valid, used, or missing.
-    3. For a valid ticket, staff can check the attendee in.
+    4. For a valid ticket, staff press Check in.
 
-    No script is attached yet, so the buttons do nothing
-    until the real script is written.
+    The logic is in scanner.js.
 -->
 
 <html lang="en">
@@ -40,26 +40,14 @@
         <div class="scanner-layout">
             <section class="panel" aria-labelledby="scan-heading">
                 <h2 id="scan-heading">Scan a ticket</h2>
-                <p class="helper">Enter the event ID, then open your camera.</p>
+                <p class="helper">Choose an event, then open your camera.</p>
 
-                <div class="settings-row">
-                    <div>
-                        <label for="event-id">Event ID</label>
-                        <input id="event-id" type="number" min="1" step="1" value="1" required>
-                    </div>
-                    <div>
-                        <!--
-                            Placeholder that picks a fake result.
-                            Remove it when the real script is written.
-                        -->
-                        <label for="demo-status">Demo result</label>
-                        <select id="demo-status">
-                            <option value="valid">Valid ticket (green)</option>
-                            <option value="used">Already used (yellow)</option>
-                            <option value="none">No ticket (red)</option>
-                        </select>
-                    </div>
-                </div>
+                <p class="label">Event</p>
+                <!--
+                    A script fills this list with the events from
+                    the server. Each one is a button to choose it.
+                -->
+                <ul id="event-list" class="event-list"></ul>
 
                 <div class="camera-stage">
                     <div class="scan-symbol" aria-hidden="true">+</div>
@@ -77,6 +65,34 @@
                     <!-- Starts disabled until the camera is running. -->
                     <button id="stop-camera" class="secondary" type="button" disabled>Stop camera</button>
                 </div>
+
+                <!--
+                    Success and error text shows here.
+                    Hidden while empty.
+                -->
+                <p id="message" role="status" aria-live="polite"></p>
+
+                <!--
+                    Hidden until a ticket has been checked. A script
+                    adds the class valid, used, or none to set the
+                    color.
+                -->
+                <section id="result" aria-live="polite" hidden>
+                    <h2 id="result-title"></h2>
+                    <p id="result-details"></p>
+
+                    <!--
+                        Shown only when the ticket is valid.
+                        Freezes the ticket at check-in.
+                    -->
+                    <button id="checkin" type="button" hidden>Check in</button>
+
+                    <!--
+                        Shown after a camera scan. Starts the camera
+                        again for the next attendee.
+                    -->
+                    <button id="scan-next" class="secondary" type="button" hidden>Scan next ticket</button>
+                </section>
 
                 <div class="status-key" aria-label="Ticket status colors">
                     <span class="valid">Valid</span>
@@ -99,31 +115,9 @@
                         aria-describedby="qr-help"
                         placeholder="Paste a public wallet address or the ticket JSON"
                     ></textarea>
-                    <small id="qr-help">The ticket must match the event ID selected on this page.</small>
+                    <small id="qr-help">The ticket must be for the event chosen above.</small>
                     <button id="verify" type="submit">Verify ticket</button>
                 </form>
-
-                <!--
-                    Success and error text shows here.
-                    Hidden while empty.
-                -->
-                <p id="message" role="status" aria-live="polite"></p>
-
-                <!--
-                    Hidden until a ticket has been checked. A script
-                    adds the class valid, used, or none to set the
-                    color.
-                -->
-                <section id="result" aria-live="polite" hidden>
-                    <h2 id="result-title"></h2>
-                    <p id="result-details"></p>
-
-                    <!--
-                        Shown only when the ticket is valid.
-                        Freezes the ticket at check-in.
-                    -->
-                    <button id="checkin" type="button" hidden>Check in</button>
-                </section>
             </section>
         </div>
 
@@ -135,6 +129,6 @@
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
-    <!-- The page's own script will be added here later. -->
+    <script src="scanner.js"></script>
 </body>
 </html>
