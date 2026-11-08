@@ -5,12 +5,13 @@
     The page an attendee uses to get a ticket.
 
     Flow:
-    1. The attendee pastes a public wallet address.
-    2. The page asks the server for a ticket.
-    3. The page shows a QR code to scan at the door.
+    1. The attendee chooses an event from the list.
+    2. The attendee pastes a public wallet address, or
+       generates a test wallet.
+    3. The page asks the server for a ticket.
+    4. The page shows a QR code to scan at the door.
 
-    No script is attached yet, so the form does nothing
-    until the real script is written.
+    The logic is in attendee.js.
 -->
 
 <html lang="en">
@@ -47,7 +48,14 @@
 
             <section class="panel" aria-labelledby="reserve-heading">
                 <h2 id="reserve-heading">Get your ticket</h2>
-                <p class="helper">Enter your public wallet address to get your event ticket.</p>
+                <p class="helper">Choose an event, then enter your public wallet address.</p>
+
+                <p class="label">Available events</p>
+                <!--
+                    A script fills this list with the events from
+                    the server. Each one is a button to choose it.
+                -->
+                <ul id="event-list" class="event-list"></ul>
 
                 <form id="ticket-form">
                     <label for="wallet">Public wallet address</label>
@@ -63,6 +71,8 @@
                         aria-describedby="wallet-help"
                     >
                     <small id="wallet-help">Use your public address only. Never enter a secret key or recovery phrase.</small>
+
+                    <button id="generate-wallet" class="secondary" type="button">Generate test wallet</button>
 
                     <!--
                         Starts disabled. A script enables it once
@@ -100,6 +110,12 @@
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-    <!-- The page's own script will be added here later. -->
+    <!--
+        Solana web3 library, loaded from the internet. It makes
+        the test wallet when the button is pressed.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+
+    <script src="attendee.js"></script>
 </body>
 </html>
