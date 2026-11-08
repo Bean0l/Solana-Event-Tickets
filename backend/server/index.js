@@ -68,6 +68,11 @@ app.post('/events', async (req, res) => {
     res.status(201).json({ ...event, signature });
 });
 
+// List all events, newest first, each with how many tickets have been issued.
+app.get('/events', (req, res) => {
+    res.json(db.listEvents());
+});
+
 // Event details and how many tickets have been issued.
 app.get('/events/:id', (req, res) => {
     res.json(requireEvent(req.params.id));
