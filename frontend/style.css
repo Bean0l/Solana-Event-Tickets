@@ -348,6 +348,48 @@ button.secondary:hover:not(:disabled) {
     height: auto;
 }
 
+.event-list {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+}
+
+/*
+   Each event in the list is a button. The selectors are
+   written out in full so they win over the main button
+   rules in section 5.
+*/
+button.event-item {
+    display: block;
+    margin-top: 10px;
+    padding: 14px 16px;
+    background: #101216;
+    border: 1px solid #424653;
+    color: var(--text);
+    text-align: left;
+    font-weight: 400;
+}
+
+button.event-item:hover:not(:disabled) {
+    background: #1b1e25;
+}
+
+/* The chosen event gets the accent color border. */
+button.event-item[aria-pressed="true"] {
+    border-color: var(--accent);
+}
+
+.event-item-name {
+    display: block;
+    font-weight: 700;
+}
+
+.event-item-details {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+}
+
 .wallet {
     font: 12px/1.7 ui-monospace, monospace;
     color: var(--muted);
