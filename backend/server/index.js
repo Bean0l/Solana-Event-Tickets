@@ -36,6 +36,9 @@ function parseEventId(text) {
 
 // Checks a wallet address with new PublicKey(...) before it is used anywhere.
 function parseWallet(text) {
+    // new PublicKey(123) does not throw, and neither does an array of numbers,
+    // so only text is accepted before it gets there.
+    if (typeof text !== 'string') throw httpError('Invalid wallet address', 400);
     try {
         return new PublicKey(text).toBase58();
     } catch (err) {
