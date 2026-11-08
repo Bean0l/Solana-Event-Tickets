@@ -1,0 +1,120 @@
+<!doctype html>
+
+<!--
+    organizer.html
+    The page an event organizer uses to create an event.
+
+    Flow:
+    1. The organizer enters a name, date, and capacity.
+    2. The page asks the server to create the event. The
+       server also creates the event's token on Solana.
+    3. The page shows the event ID and links to the other
+       pages.
+
+    No script is attached yet, so the form does nothing
+    until the real script is written.
+-->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create an event</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="organizer-page">
+
+    <header class="site-header">
+        <a class="brand" href="organizer.html"><span class="brand-mark" aria-hidden="true">S</span>Solana Tickets</a>
+        <nav aria-label="Main navigation">
+            <a href="organizer.html" aria-current="page">Organizer</a>
+            <a href="attendee.html">Attendee</a>
+            <a href="scanner.html">Scanner</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <h1>Create an event</h1>
+        <p class="subtitle">Fill in the details below. Each event gets its own ticket token on Solana.</p>
+
+        <div class="organizer-layout">
+
+            <section class="panel" aria-labelledby="create-heading">
+                <h2 id="create-heading">Event details</h2>
+
+                <form id="event-form">
+                    <label for="name">Event name</label>
+                    <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        required
+                        autocomplete="off"
+                        placeholder="Solana Demo Event"
+                    >
+
+                    <label for="date">Date</label>
+                    <input
+                        id="date"
+                        name="date"
+                        type="text"
+                        required
+                        autocomplete="off"
+                        placeholder="November 8, 2026"
+                    >
+
+                    <label for="capacity">Capacity</label>
+                    <input
+                        id="capacity"
+                        name="capacity"
+                        type="number"
+                        min="1"
+                        max="1000"
+                        step="1"
+                        required
+                        placeholder="100"
+                        aria-describedby="capacity-help"
+                    >
+                    <small id="capacity-help">The most tickets that can be issued. A whole number from 1 to 1000.</small>
+
+                    <button id="create-event" type="submit">Create event</button>
+                </form>
+
+                <!--
+                    Success and error text shows here.
+                    Hidden while empty.
+                -->
+                <p id="message" role="status" aria-live="polite"></p>
+            </section>
+
+            <!--
+                Hidden until an event has been created. A script
+                fills in the ID, name, token address, and the
+                addresses of the three links.
+            -->
+            <section id="created" class="panel" aria-labelledby="created-heading" hidden>
+                <h2 id="created-heading">Event created</h2>
+
+                <p class="label">Event ID</p>
+                <p id="created-id" class="big-number"></p>
+                <p id="created-name"></p>
+
+                <p class="label">Token address (mint)</p>
+                <p id="created-mint" class="wallet"></p>
+
+                <div class="link-buttons">
+                    <a id="attendee-link" class="button" href="attendee.html">Open attendee page</a>
+                    <a id="scanner-link" class="button secondary" href="scanner.html">Open scanner page</a>
+                </div>
+
+                <small><a id="explorer-link" href="https://explorer.solana.com/?cluster=devnet" target="_blank" rel="noopener">View the transaction on Solana Explorer</a></small>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- The page's own script will be added here later. -->
+</body>
+</html>
