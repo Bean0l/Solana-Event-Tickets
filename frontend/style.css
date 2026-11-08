@@ -473,14 +473,8 @@ small a {
     gap: 24px;
 }
 
-.settings-row {
-    display: grid;
-    grid-template-columns: 90px 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
 .camera-stage {
+    margin-top: 24px;
     border: 1px dashed #505563;
     border-radius: 14px;
     padding: 20px;
@@ -586,8 +580,14 @@ small a {
     border-color: #f37f90;
 }
 
+/* pre-line makes the line breaks in the text show on screen. */
 #result-details {
     font: 12px/1.8 ui-monospace, monospace;
+    white-space: pre-line;
+}
+
+#result-details a {
+    text-decoration: underline;
 }
 
 
@@ -622,7 +622,6 @@ small a {
         gap: 12px;
     }
 
-    .settings-row,
     .camera-actions {
         grid-template-columns: 1fr;
     }
